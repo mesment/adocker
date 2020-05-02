@@ -37,7 +37,11 @@ func nsRun() {
 }
 
 func main()  {
-	cmd := exec.Command("nsInitialisation")
+	cmd := reexec.Command("nsInitialisation")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Cloneflags:syscall.CLONE_NEWUTS|
 			syscall.CLONE_NEWIPC|
@@ -60,9 +64,7 @@ func main()  {
 					},
 			},
 	}
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+
 	if err := cmd.Run(); err != nil {
 		log.Printf("Error running the /bin/sh command - %s\n", err)
 		panic(err)
