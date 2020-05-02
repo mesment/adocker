@@ -37,7 +37,7 @@ func nsRun() {
 }
 
 func main()  {
-	cmd := exec.Command("sh")
+	cmd := exec.Command("nsInitialisation")
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Cloneflags:syscall.CLONE_NEWUTS|
 			syscall.CLONE_NEWIPC|
