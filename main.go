@@ -3,6 +3,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 	"os/exec"
@@ -18,9 +19,15 @@ func init()  {
 }
 
 func nsInitialisation() {
-	log.Printf("\n>> namespace setup code goes here <<\n\n")
+	newRootPath := os.Args[1]
+
+	if err := pivotRoot(newRootPath); err != nil {
+		log.Printf("Error running pivot_root - %s\n", err)
+		os.Exit(1)
+	}
 	nsRun()
 }
+
 func nsRun() {
 	cmd := exec.Command("/bin/sh")
 
@@ -37,7 +44,13 @@ func nsRun() {
 }
 
 func main()  {
-	cmd := reexec.Command("nsInitialisation")
+	var rootfsPath string
+	flag.StringVar(&rootfsPath,"rootfs","./rootfs", "Path to the root filesystem to use")
+	flag.Parse()
+
+	exitIfRootfsNotFound(rootfsPath)
+
+	cmd := reexec.Command("nsInitialisation",rootfsPath)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -66,7 +79,7 @@ func main()  {
 	}
 
 	if err := cmd.Run(); err != nil {
-		log.Printf("Error running the /bin/sh command - %s\n", err)
+		log.Printf("Error running reexec.Command- %s\n", err)
 		panic(err)
 	}
 }
